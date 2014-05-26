@@ -1,0 +1,1 @@
+-define(LOG(Text), io:format("DEBUG: ~p:~p - ~p~n ~p~n~n", [?MODULE, ?LINE, ??Text, Text])).

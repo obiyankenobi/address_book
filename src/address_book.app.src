@@ -1,0 +1,15 @@
+%% -*- erlang -*-
+
+{application, address_book,
+ [
+     {description, "A distributed address book to test riak_core"},
+     {vsn, "0.1.0"},
+     {modules, []},
+     {registered, []},
+     {applications, [
+                     kernel,
+                     stdlib,
+                     riak_core
+                    ]},
+     {mod, address_book_app. []}
+ ]}.
