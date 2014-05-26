@@ -37,6 +37,7 @@ handle_command({find_contact, Name}, Sender, State) ->
         false ->
             Reply = "Not found"
     end,
+    ?LOG({result, Reply}),
     {reply, Reply, State};
 
 handle_command(Message, _Sender, State) ->

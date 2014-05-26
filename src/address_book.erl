@@ -1,12 +1,13 @@
 -module(address_book).
--include_lib("riak_core/include/riak_core_vnode.hrl").
+-include_lib("/media/Data/development/riak_core/include/riak_core_vnode.hrl").
+-include("address_book.hrl").
 
 -export([add_contact/2,
          find_contact/1]).
 
 
 %% all objects go for the same bucket
--define(BUCKET,<<"address_book">>).
+-define(BUCKET_TMP,<<"address_book">>).
 
 %% Public API
 
@@ -21,8 +22,16 @@ find_contact(Name) ->
 
 command(Cmd) ->
     Name = element(2,Cmd),
-    DocIdx = riak_core_util:chash_key({?BUCKET, Name}),
-    Preflist = riak_core_apl:get_apl(DocIdx,1,address_book),
-    riak_core_vnode_master:command(Preflist, Cmd, address_book_vnode_master).
+    DocIdx = riak_core_util:chash_key({?BUCKET_TMP, Name}),
+    PrefList = riak_core_apl:get_primary_apl(DocIdx, 1, address_book),
+    ?LOG(PrefList),
+    [{IndexNode, _Type}] = PrefList,
+    riak_core_vnode_master:sync_spawn_command(IndexNode, Cmd, address_book_vnode_master).
+    
+    
+    
+    %%Preflist = riak_core_apl:get_apl(DocIdx,1,address_book),
+    %%?LOG({prefilist,Preflist}),
+    %%riak_core_vnode_master:command(Preflist, Cmd, address_book_vnode_master).
 
 

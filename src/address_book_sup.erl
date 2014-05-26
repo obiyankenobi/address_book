@@ -18,6 +18,6 @@ start_link() ->
 
 init([]) ->
     VMaster = {address_book_vnode_master,
-        {riak_core_vnode_master, start_link, [address_book_vnode]},
-        permanent, 5000, worker, [riak_core_vnode_master]},
-    {ok, {one_for_one, 5, 10}, [VMaster]}.
+                {riak_core_vnode_master, start_link, [address_book_vnode]},
+                permanent, 5000, worker, [riak_core_vnode_master]},
+    {ok, {{one_for_one, 5, 10}, [VMaster]}}.
