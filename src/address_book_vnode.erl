@@ -24,19 +24,19 @@ start_vnode(I) ->
 
 %% vnode callbacks
 init([_Index]) ->
-    {ok, []}.
+    {ok, dict:new()}.
 
 handle_command({add_contact, Name, Address}, Sender, State) ->
     ?LOG({add_contact, Name, Address, Sender}),
-    {reply, ok, [{Name, Address} | State]};
+    {reply, ok, dict:store(Name, Address, State)};
 
 handle_command({find_contact, Name}, Sender, State) ->
     ?LOG({find_contact, Name, Sender}),
-    case lists:keyfind(Name, 1, State) of
-        {Name, Address} ->
+    case dict:find(Name, State) of
+        {ok, Address} ->
             Reply = Address;
-        false ->
-            Reply = "Not found"
+        error ->
+            Reply = not_found
     end,
     ?LOG({result, Reply}),
     {reply, Reply, State};
@@ -49,8 +49,7 @@ handle_exit(_Pid, Reason, State) ->
     {stop, Reason, State}.
 
 handle_handoff_command(?FOLD_REQ{foldfun=FoldFun, acc0=Acc0}, _Sender, State) ->
-    F = fun({Name, Address}, Acc) -> FoldFun(Name, Address, Acc) end,
-    Acc = lists:foldl(F, Acc0, State),
+    Acc = dict:fold(FoldFun, Acc0, State),
     ?LOG({handoff_command, sending_data}),
     {reply, Acc, State};
 
@@ -71,9 +70,8 @@ handoff_finished(TargetNode, State) ->
     {ok, State}.
 
 handle_handoff_data(Data, State) ->
-    NameEntry = binary_to_term(Data),
-    ?LOG({handoff_data, NameEntry}),
-    {reply, ok, [NameEntry | State]}.
+    {Name, Address} = binary_to_term(Data),
+    {reply, ok, dict:store(Name, Address, State)}.
 
 encode_handoff_item(ObjectName, ObjectValue) ->
     ?LOG({encode_handoff_item,ObjectName,ObjectValue}),
@@ -81,9 +79,9 @@ encode_handoff_item(ObjectName, ObjectValue) ->
 
 is_empty(State) ->
     ?LOG({is_empty,State}),
-    case length(State) of
+    case dict:size(State) of
         0 ->
-            {true, []};
+            {true, State};
         Size ->
             {false, Size, State}
     end.
