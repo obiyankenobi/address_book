@@ -11,7 +11,7 @@ init([]) ->
     {ok, #state{}}.
 
 handle_event({ring_update, Ring}, State) ->
-    ?LOG(Ring),
+    %%?LOG(Ring),
     {ok, State}.
 
 handle_call(Event, State) ->

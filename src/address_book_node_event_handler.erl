@@ -15,7 +15,7 @@ handle_event({service_update, Services}, State) ->
     {ok, State}.
 
 handle_call(Event, State) ->
-    ?LOG(Event),
+    %%?LOG(Event),
     {ok, ok, State}.
 
 handle_info(Info, State) ->

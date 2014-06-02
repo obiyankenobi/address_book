@@ -1,6 +1,7 @@
 -module(address_book_vnode).
 -behaviour(riak_core_vnode).
 -include("address_book.hrl").
+-include_lib("/media/Data/development/riak_core/include/riak_core_vnode.hrl").
 
 -export([start_vnode/1,
          init/1,
@@ -47,6 +48,12 @@ handle_command(Message, _Sender, State) ->
 handle_exit(_Pid, Reason, State) ->
     {stop, Reason, State}.
 
+handle_handoff_command(?FOLD_REQ{foldfun=FoldFun, acc0=Acc0}, _Sender, State) ->
+    F = fun({Name, Address}, Acc) -> FoldFun(Name, Address, Acc) end,
+    Acc = lists:foldl(F, Acc0, State),
+    ?LOG({handoff_command, sending_data}),
+    {reply, Acc, State};
+
 handle_handoff_command(Message, Sender, State) ->
     ?LOG({handoff_command, Sender, Message}),
     {forward, State}.
@@ -64,11 +71,12 @@ handoff_finished(TargetNode, State) ->
     {ok, State}.
 
 handle_handoff_data(Data, State) ->
-    ?LOG({handoff_data, Data}),
-    binary_to_term(Data),
-    {reply, ok, State}.
+    NameEntry = binary_to_term(Data),
+    ?LOG({handoff_data, NameEntry}),
+    {reply, ok, [NameEntry | State]}.
 
 encode_handoff_item(ObjectName, ObjectValue) ->
+    ?LOG({encode_handoff_item,ObjectName,ObjectValue}),
     term_to_binary({ObjectName,ObjectValue}).
 
 is_empty(State) ->
