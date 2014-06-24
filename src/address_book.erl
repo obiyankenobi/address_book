@@ -8,30 +8,33 @@
 
 %% all objects go for the same bucket
 -define(BUCKET_TMP,<<"address_book">>).
+%% timeout for requests
+-define(REQ_TIMEOUT,timer:seconds(2)).
 
-%% Public API
+
+%%%===================================================================
+%%% API
+%%%===================================================================
 
 add_contact(Name, Address) ->
-    command({add_contact, Name, Address}).
+    command({put, Name, Address}).
 
 find_contact(Name) ->
-    command({find_contact, Name}).
+    command({get, Name, address_not_used}).
 
 
-%% Internal
+%%%===================================================================
+%%% Internal
+%%%===================================================================
 
 command(Cmd) ->
-    Name = element(2,Cmd),
-    DocIdx = riak_core_util:chash_key({?BUCKET_TMP, Name}),
-    PrefList = riak_core_apl:get_primary_apl(DocIdx, 1, address_book),
-    ?LOG(PrefList),
-    [{IndexNode, _Type}] = PrefList,
-    riak_core_vnode_master:sync_spawn_command(IndexNode, Cmd, address_book_vnode_master).
-    
-    
-    
-    %%Preflist = riak_core_apl:get_apl(DocIdx,1,address_book),
-    %%?LOG({prefilist,Preflist}),
-    %%riak_core_vnode_master:command(Preflist, Cmd, address_book_vnode_master).
+    {ok, ReqId} = address_book_fsm_sup:request(Cmd),
+    wait_for_request(ReqId, ?REQ_TIMEOUT).
 
-
+wait_for_request(ReqId, Timeout) ->
+    receive
+        {ReqId, ok} -> ok;
+        {ReqId, ok, Value} -> {ok, Value}
+    after Timeout ->
+              {error, timeout}
+    end.

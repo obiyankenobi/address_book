@@ -18,20 +18,27 @@
          handle_coverage/4,
          handle_exit/3]).
 
-%% API
+
+%%%===================================================================
+%%% API
+%%%===================================================================
+
 start_vnode(I) ->
     riak_core_vnode_master:get_vnode_pid(I, ?MODULE).
 
-%% vnode callbacks
+%%%===================================================================
+%%% Behaviour callbacks
+%%%===================================================================
+
 init([_Index]) ->
     {ok, dict:new()}.
 
-handle_command({add_contact, Name, Address}, Sender, State) ->
-    ?LOG({add_contact, Name, Address, Sender}),
+handle_command({put, ReqId, Name, Address}, Sender, State) ->
+    ?LOG({put, Name, Address, Sender}),
     {reply, ok, dict:store(Name, Address, State)};
 
-handle_command({find_contact, Name}, Sender, State) ->
-    ?LOG({find_contact, Name, Sender}),
+handle_command({get, ReqId, Name}, Sender, State) ->
+    ?LOG({get, Name, Sender}),
     case dict:find(Name, State) of
         {ok, Address} ->
             Reply = Address;
