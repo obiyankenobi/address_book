@@ -6,12 +6,6 @@
          find_contact/1]).
 
 
-%% all objects go for the same bucket
--define(BUCKET_TMP,<<"address_book">>).
-%% timeout for requests
--define(REQ_TIMEOUT,timer:seconds(2)).
-
-
 %%%===================================================================
 %%% API
 %%%===================================================================
@@ -29,11 +23,12 @@ find_contact(Name) ->
 
 command(Cmd) ->
     {ok, ReqId} = address_book_fsm_sup:request(Cmd),
-    wait_for_request(ReqId, ?REQ_TIMEOUT).
+    {_N, _RW, Timeout} = ?DEFAULT_OPTIONS,
+    wait_for_request(ReqId, Timeout).
 
 wait_for_request(ReqId, Timeout) ->
     receive
-        {ReqId, ok} -> ok;
+        {ReqId, ok, ok} -> ok;
         {ReqId, ok, Value} -> {ok, Value}
     after Timeout ->
               {error, timeout}

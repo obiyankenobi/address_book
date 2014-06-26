@@ -1,10 +1,11 @@
 -module(address_book_console).
+-include("address_book.hrl").
 -export([join/1,
          leave/1,
          remove/1,
          ringready/1]).
 
-join([NodeStr]) ->
+join(NodeStr) ->
     try riak_core:join(NodeStr) of
         ok ->
             io:format("Sent join request to ~s\n", [NodeStr]),
@@ -18,15 +19,14 @@ join([NodeStr]) ->
             error
     catch
         Exception:Reason ->
-            lager:error("Join failed ~p:~p", [Exception, Reason]),
-            io:format("Join failed, see log for details~n"),
+            ?LOG("Join failed, see log for details"),
             error
     end.
 
 leave([]) ->
     remove_node(node()).
 
-remove([Node]) ->
+remove(Node) ->
     remove_node(list_to_atom(Node)).
 
 remove_node(Node) when is_atom(Node) ->
@@ -37,14 +37,13 @@ remove_node(Node) when is_atom(Node) ->
             %% the result of subtracting the current node from the
             %% cluster member list results in the empty list. When
             %% that code gets refactored this can probably go away.
-            io:format("Leave failed, this node is the only member.~n"),
+            ?LOG("Leave failed, this node is the only member"),
             error;
         Res ->
             io:format(" ~p\n", [Res])
     catch
         Exception:Reason ->
-            lager:error("Leave failed ~p:~p", [Exception, Reason]),
-            io:format("Leave failed, see log for details~n"),
+            io:format("Leave failed ~p:~p", [Exception, Reason]),
             error
     end.
 
@@ -63,8 +62,7 @@ ringready([]) ->
             error
     catch
         Exception:Reason ->
-            lager:error("Ringready failed ~p:~p", [Exception, Reason]),
-            io:format("Ringready failed, see log for details~n"),
+            ?LOG("Ringready failed, see log for details"),
             error
     end.
 

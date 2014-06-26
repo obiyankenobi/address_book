@@ -35,7 +35,7 @@ init([_Index]) ->
 
 handle_command({put, ReqId, Name, Address}, Sender, State) ->
     ?LOG({put, Name, Address, Sender}),
-    {reply, ok, dict:store(Name, Address, State)};
+    {reply, {ok, ReqId, ok}, dict:store(Name, Address, State)};
 
 handle_command({get, ReqId, Name}, Sender, State) ->
     ?LOG({get, Name, Sender}),
@@ -46,7 +46,7 @@ handle_command({get, ReqId, Name}, Sender, State) ->
             Reply = not_found
     end,
     ?LOG({result, Reply}),
-    {reply, Reply, State};
+    {reply, {ok, ReqId, Reply}, State};
 
 handle_command(Message, _Sender, State) ->
     ?LOG({unhandled_command, Message}),
