@@ -1,6 +1,5 @@
 -module(address_book_fsm).
 -behaviour(gen_fsm).
--include_lib("/media/Data/development/riak_core/include/riak_core_vnode.hrl").
 -include("address_book.hrl").
 
 %% Callbacks

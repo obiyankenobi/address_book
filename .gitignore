@@ -7,4 +7,6 @@ erl_crash.dump
 data
 ebin
 log
-rel
+rel/address_book
+deps/*
+.rebar/

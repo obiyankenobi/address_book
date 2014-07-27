@@ -1,5 +1,4 @@
 -module(address_book).
--include_lib("/media/Data/development/riak_core/include/riak_core_vnode.hrl").
 -include("address_book.hrl").
 
 -export([add_contact/2,

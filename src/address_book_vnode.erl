@@ -1,7 +1,7 @@
 -module(address_book_vnode).
 -behaviour(riak_core_vnode).
 -include("address_book.hrl").
--include_lib("/media/Data/development/riak_core/include/riak_core_vnode.hrl").
+-include_lib("riak_core/include/riak_core_vnode.hrl").
 
 -export([start_vnode/1,
          init/1,

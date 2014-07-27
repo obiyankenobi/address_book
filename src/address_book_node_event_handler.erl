@@ -10,20 +10,16 @@
 init([]) ->
     {ok, #state{}}.
 
-handle_event({service_update, Services}, State) ->
-    ?LOG(Services),
+handle_event({service_update, _Services}, State) ->
     {ok, State}.
 
-handle_call(Event, State) ->
-    %%?LOG(Event),
+handle_call(_Event, State) ->
     {ok, ok, State}.
 
-handle_info(Info, State) ->
-    ?LOG(Info),
+handle_info(_Info, State) ->
     {ok, State}.
 
-terminate(Reason, _State) ->
-    ?LOG(Reason),
+terminate(_Reason, _State) ->
     ok.
 
 code_change(_OldVsn, State, _Extra) ->

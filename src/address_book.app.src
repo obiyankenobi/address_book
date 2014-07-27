@@ -3,15 +3,7 @@
 {application, address_book,
  [
      {description, "A distributed address book to test riak_core"},
-     {vsn, "0.1.0"},
-     {modules, [
-                address_book_app,
-                address_book_console,
-                address_book,
-                address_book_node_event_handler,
-                address_book_ring_event_handler,
-                address_book_sup,
-                address_book_vnode]},
+     {vsn, "0.2.0"},
      {registered, []},
      {applications, [
                      kernel,
