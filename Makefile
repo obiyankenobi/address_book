@@ -1,21 +1,36 @@
-RIAK_CORE= /media/Data/development/riak_core
+# This requires rebar to be installed and in the system path.
 
-all: release
 
-release: ebin
-	mkdir -p rel
-	./make_release.escript
+# Check if Erlang and rebar are installed
 
-#ebin: riak_core
-ebin:
-	erl -pa $(RIAK_CORE)/ebin -make
-	cp src/address_book.app.src ebin/address_book.app
+ERL=$(shell which erl)
+ifeq ($(ERL),)
+	$(error "Erlang not available on this system")
+endif
 
-riak_core:
-	$(MAKE) -C $(RIAK_CORE)
+REBAR=$(shell which rebar)
+ifeq ($(REBAR),)
+	$(error "Rebar not available on this system")
+endif
+
+
+all: deps compile
+
+
+deps:
+	$(REBAR) get-deps
+
+compile:
+	$(REBAR) compile
 
 clean:
-	rm -rf ebin/*
-	rm -rf rel/*
+	$(REBAR) skip_deps=true clean
 
-.PHONY: clean ebin release
+distclean: clean
+	$(REBAR) delete-deps
+
+release: deps compile
+	$(REBAR) generate
+
+relclean: clean
+	@rm -rf rel/address_book
