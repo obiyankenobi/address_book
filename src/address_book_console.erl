@@ -18,7 +18,7 @@ join(NodeStr) ->
                       [NodeStr]),
             error
     catch
-        Exception:Reason ->
+        _:_ ->
             ?LOG("Join failed, see log for details"),
             error
     end.
@@ -61,7 +61,7 @@ ringready([]) ->
                       [Down]),
             error
     catch
-        Exception:Reason ->
+        _:_ ->
             ?LOG("Ringready failed, see log for details"),
             error
     end.
